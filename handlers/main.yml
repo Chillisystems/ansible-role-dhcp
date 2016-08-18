@@ -6,7 +6,7 @@
     name: "{{ dhcp_service }}"
     state: restarted
 
-- name: restart dhcp
+- name: restart dhcp6
   service:
     name: "{{ dhcp6_service }}"
     state: restarted
