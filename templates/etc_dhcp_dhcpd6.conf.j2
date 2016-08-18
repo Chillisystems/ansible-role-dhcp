@@ -1,0 +1,156 @@
+# ISC DHCPD configuration -- don't edit manually!
+#
+# {{ ansible_managed }}
+
+#
+# Global options
+#
+{% if dhcp_global_bootp is defined %}
+{{ dhcp_global_bootp }} bootp;
+{% endif %}
+{% if dhcp_global_booting is defined %}
+{{ dhcp_global_booting }} booting;
+{% endif %}
+{% if dhcp_global_next_server is defined %}
+next-server {{ dhcp_global_next_server}};
+{% endif %}
+{% if dhcp_global_filename is defined %}
+filename "{{ dhcp_global_filename }}";
+{% endif %}
+{% if dhcp_global_default_lease_time is defined %}
+default-lease-time {{ dhcp_global_default_lease_time }};
+{% endif %}
+{% if dhcp_global_max_lease_time is defined %}
+max-lease-time {{ dhcp_global_max_lease_time }};
+{% endif %}
+{% if dhcp_global_subnet6_mask is defined %}
+option subnet6-mask {{ dhcp_global_subnet_mask }};
+{% endif %}
+{% if dhcp_global_broadcast_address is defined %}
+option broadcast-address {{ dhcp_global_broadcast_address }};
+{% endif %}
+{% if dhcp_global_routers is defined %}
+option ipv6-gateway {{ dhcp_global_routers }};
+{% endif %}
+{% if dhcp_global_domain_name is defined %}
+option dhcp6.domain-name "{{ dhcp_global_domain_name }}";
+{% endif %}
+{% if dhcp_global_domain_name_servers is defined %}
+{% if dhcp_global_domain_name_servers is string %}
+option dhcp6.domain-name-servers {{ dhcp_global_domain_name_servers }};
+{% else %}
+option dhcp6.domain-name-servers {{ dhcp_global_domain_name_servers|join(', ') }};
+{% endif %}
+{% endif %}
+{% if dhcp_global_domain_search is defined %}
+{% if dhcp_global_domain_search is string %}
+option dhcp6.domain-search {{ dhcp_global_domain_search }};
+{% else %}
+option dhcp6.domain-search {{ dhcp_global_domain_search|join(', ') }};
+{% endif %}
+{% endif %}
+
+{# Template for global option
+{% if dhcp_global_OPT is defined %}
+option OPT {{ dhcp_global_OPT }};
+{% endif %}
+#}
+{% if dhcp_global_classes is defined %}
+
+#
+# Classes
+#
+{% for class in dhcp_global_classes %}
+class "{{ class.name }}" {
+{% if class.match is defined %}
+  {{ class.match }};
+{% endif %}
+}
+
+{% endfor %}
+{% endif %}
+#
+# Subnet declarations
+#
+{% for subnet6 in dhcp6_subnets %}
+subnet6 {{ subnet6.ip }}/{{ subnet6.netmask }} {
+{% if subnet6.default_lease_time is defined %}
+  default-lease-time {{ subnet6.default_lease_time }};
+{% endif %}
+{% if subnet6.max_lease_time is defined %}
+  max-lease-time {{ subnet6.max_lease_time }};
+{% endif %}
+{% if subnet6.subnet_mask is defined %}
+  option ipv6-netmask {{ subnet.subnet_mask }};
+{% endif %}
+{% if subnet6.domain_search is defined %}
+  option dhcp6.domain-search {{ subnet6.domain_search }};
+{% endif %}
+{% if subnet6.domain_name_servers is defined %}
+{% if subnet6.domain_name_servers is string %}
+  option dhcp6.domain-name-servers {{ subnet6.domain_name_servers }};
+{% else %}
+  option dhcp6.domain-name-servers {{ subnet6.domain_name_servers|join(', ') }};
+{% endif %}
+{% endif %}
+{% if subnet6.range_begin is defined and subnet6.range_end is defined %}
+  range6 {{ subnet6.range_begin }} {{ subnet6.range_end }};
+{% endif %}
+{% if subnet6.next_server is defined %}
+  next-server {{ subnet6.next_server }};
+{% endif %}
+{% if subnet6.filename is defined %}
+  dhcp6.filename "{{ subnet6.filename }}";
+{% endif %}
+{% if subnet6.bootp is defined %}
+{{ subnet6.bootp }} bootp;
+{% endif %}
+{% if subnet6.booting is defined %}
+{{ subnet6.booting }} booting;
+{% endif %}
+{% if subnet6.hosts is defined %}
+
+{% for host in subnet6.hosts %}
+  host {{ host.name }} {
+    hardware ethernet {{ host.mac }};
+    fixed-address {{ host.ip }};
+  }
+{% endfor %}
+{% endif %}
+
+{% if subnet6.pools is defined %}
+  # Address pool(s)
+{% for pool in subnet6.pools %}
+  pool {
+{% if pool.domain_name_servers is defined %}
+{% if pool.domain_name_servers is string %}
+    option domain-name-servers {{ pool.domain_name_servers }};
+{% else %}
+    option domain-name-servers {{ pool.domain_name_servers|join(', ') }};
+{% endif %}
+{% endif %}
+{% if pool.default_lease_time is defined %}
+    default-lease-time {{ pool.default_lease_time }};
+{% endif %}
+{% if pool.min_lease_time is defined %}
+    min-lease-time {{ pool.min_lease_time }};
+{% endif %}
+{% if pool.max_lease_time is defined %}
+    max-lease-time {{ pool.max_lease_time }};
+{% endif %}
+{% if pool.range_begin is defined and pool.range_end is defined %}
+    range {{ pool.range_begin }} {{ pool.range_end }};
+{% endif %}
+{% if pool.allow is defined %}
+    allow {{ pool.allow }};
+{% endif %}
+{% if pool.deny is defined %}
+    deny {{ pool.deny }};
+{% endif %}
+  }
+
+{% endfor %}
+{% endif %}
+}
+
+{% endfor %}

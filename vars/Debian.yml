@@ -8,4 +8,6 @@ dhcp_config: /etc/dhcp/dhcpd.conf
 
 dhcp_service: isc-dhcp-server
 
+dhcp6_service: isc-dhcp-server6
+
 dhcp_apparmor_policy: /etc/apparmor.d/usr.sbin.dhcpd
