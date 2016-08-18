@@ -20,7 +20,7 @@
 - name: Install IPv6 config  file
   template:
     src: etc_dhcp_dhcpd6.conf.j2
-    dest: "{{ dhcp_config }}"
+    dest: "{{ dhcp6_config }}"
     validate: 'dhcpd -6 -t -cf %s'
   notify: restart dhcp6
   tags: dhcp
